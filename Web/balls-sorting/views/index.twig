@@ -92,6 +92,39 @@
 
 <script type="text/javascript">
 	$(() => {
+		// Define the chart outside the setInterval function
+		const ctx = document.getElementById("graph").getContext("2d");
+		const barChart = new Chart(ctx, {
+			type: "bar",
+			data: {
+				labels: ["Yellow", "Pink", "Others"],
+				datasets: [
+					{
+						label: "Number of balls in the containers",
+						data: [0, 0, 0], // Initialize with zero data
+						backgroundColor: [
+							"rgba(255, 255, 0, 0.2)",
+							"rgba(255, 192, 203, 0.2)",
+							"rgba(0, 0, 255 , 0.2)",
+						],
+						borderColor: [
+							"rgba(255, 255, 0, 0.2)",
+							"rgba(255, 192, 203, 0.2)",
+							"rgba(0, 0, 255 , 0.2)",
+						],
+						borderWidth: 1,
+					},
+				],
+			},
+			options: {
+				scales: {
+					y: {
+						beginAtZero: true,
+					},
+				},
+			},
+		});
+
 		setInterval(() => {
 			$.ajax({
 				type: "post",
@@ -108,9 +141,17 @@
 						$("#start").show();
 						$("#stop").hide();
 					} else {
-						$("#stop").show();
 						$("#start").hide();
+						$("#stop").show();
 					}
+
+					// Update the chart data
+					barChart.data.datasets[0].data[0] = response.lastAcquisitionYellow;
+					barChart.data.datasets[0].data[1] = response.lastAcquisitionPink;
+					barChart.data.datasets[0].data[2] = response.lastAcquisitionOther;
+
+					// Update the chart
+					barChart.update();
 				},
 			});
 		}, 1000);
@@ -131,72 +172,6 @@
 		$.post("/api/reset", function (data, textStatus, jqXHR) {}, "json");
 	});
 </script>
-
 <script src="/chart.umd.js"></script>
-
-<script type="text/javascript">
-	$(() => {
-		//let table = new DataTable("#table")
-		let barChart = null;
-
-		$("#session").change(function (e) {
-			e.preventDefault();
-			console.log(e.currentTarget.value);
-
-			$.ajax({
-				type: "POST",
-				url: "/api/getSessionValues",
-				data: { idSession: e.currentTarget.value },
-				dataType: "json",
-				success: function (response) {
-					// console.log(response);
-					$("#mesures").empty();
-					//table.clear()
-
-					let labels = ["Pink, Yellow, Others"];
-					let values = [];
-
-					response.forEach((measure) => {
-						values.push(measure.ContainerValues.valuePink);
-						values.push(measure.ContainerValues.valueYellow);
-						values.push(measure.ContainerValues.valueOthers);
-					});
-
-					// Gestion du graphique
-					const data = {
-						labels: labels,
-						datasets: [
-							{
-								label: "Acquisition",
-								data: values,
-								backgroundColor: [
-									"rgba(255, 99, 132, 0.2)",
-									"rgba(255, 205, 86, 0.2)",
-									"rgba(153, 102, 255, 0.2)",
-								],
-								tension: 0.1,
-							},
-						],
-					};
-
-					if (barChart === null) {
-						const graph = $("#graph");
-						barChart = new Chart(graph, {
-							type: "bar",
-							data: data,
-						});
-					} else {
-						barChart.destroy();
-						const graph = $("#graph");
-						barChart = new Chart(graph, {
-							type: "bar",
-							data: data,
-						});
-					}
-				},
-			});
-		});
-	});
-</script>
 
 {% endblock %}
