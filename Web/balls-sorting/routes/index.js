@@ -6,6 +6,8 @@ const { SerialPort } = require("serialport");
 const { ReadlineParser } = require("@serialport/parser-readline");
 const e = require("express");
 
+//---------Connection to the arduino---------
+
 const port = "COM13";
 
 const arduino = new SerialPort({
@@ -17,6 +19,8 @@ arduino.on("error", (err) => {
 	console.log(err);
 });
 
+//---------State of the system---------
+
 const etat = {
 	lastTimestamp: 0,
 	lastAcquisitionPink: NaN,
@@ -26,6 +30,8 @@ const etat = {
 };
 
 let currentSession = null;
+
+//---------Data acquisition---------
 
 const parser = arduino.pipe(new ReadlineParser({ delimiter: "\r\n" }));
 
@@ -40,6 +46,7 @@ parser.on("data", (data) => {
 	etat.lastAcquisitionOther = Number(valueOther);
 	if (etat.idle === false && currentSession) {
 		console.log(etat);
+		// Save the data in the database
 		prisma.containerValues
 			.create({
 				data: {
@@ -77,6 +84,8 @@ router.get("/log", async (req, res, next) => {
 	res.render("historic", { sessions: sessions });
 });
 
+// Get the values of the session
+
 router.post("/api/getSessionValues", (req, res, next) => {
 	const idSession = Number(req.body.idSession);
 	console.log("idSession:", idSession);
@@ -98,10 +107,24 @@ router.post("/api/getSessionValues", (req, res, next) => {
 		});
 });
 
+/*------Start the data acquisition------*/
+
 router.post("/api/start", (req, res, next) => {
 	if (etat.idle === true) {
 		etat.idle = false;
 		startLogging();
+		res.status(200).send();
+	} else {
+		res.status(403).send();
+	}
+});
+
+/*------Stop the data acquisition------*/
+
+router.post("/api/stop", (req, res, next) => {
+	if (etat.idle === false) {
+		etat.idle = true;
+		stopLogging();
 		res.status(200).send();
 	} else {
 		res.status(403).send();
