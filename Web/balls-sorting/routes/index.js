@@ -9,6 +9,7 @@ const e = require("express");
 //---------Connection to the arduino---------
 
 const port = "COM13";
+//const port = "/dev/ttyUSB0";
 
 const arduino = new SerialPort({
 	path: port,
