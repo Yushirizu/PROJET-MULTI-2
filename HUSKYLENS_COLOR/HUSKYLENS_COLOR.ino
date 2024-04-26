@@ -23,7 +23,7 @@ int index_other = 0;
 void setup() {
   Serial.begin(9600);
   Wire.begin();
-  motor.setSpeed(50);
+  motor.setSpeed(20);
   //huskylens.setCustomName("Yellow",1);
   //huskylens.setCustomName("Pink" , 2);
   while (!huskylens.begin(Wire)) {
@@ -61,16 +61,19 @@ void loop() {
         if (result.ID == 1 && index_yellow < 4) {
           index_yellow++;
           //set the stepper motor to be at the initial position
-          //motor.step(steps, FORWARD);
+            motor.step(140, FORWARD, INTERLEAVE);
+            delay(200);
+            motor.step(140, BACKWARD, INTERLEAVE);
 
         } else if (result.ID == 2 && index_pink < 4) {
           index_pink++;
           //set the stepper motor to be at the initial position + 120 degrees
-          //motor.step(steps, FORWARD);
+            motor.step(140, BACKWARD, INTERLEAVE);
+            delay(200);
+            motor.step(140, FORWARD, INTERLEAVE);
 
         } else {
           index_other++;
-          //motor.step(steps, FORWARD);
         }
       }
       Serial.print(index_yellow);

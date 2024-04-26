@@ -19,8 +19,8 @@ void loop() {
   Serial.println("Double coil steps");
   /*Alternate between single and double to create a half-step in between.  This can result in smoother operation, but because of the extra half-step, the speed is reduced by half too.
 MICROSTEP - Adjacent coils are ramped up and down to create */
-  motor.step(200, FORWARD, INTERLEAVE);
+  motor.step(140, FORWARD, INTERLEAVE);
   delay(200);
-  motor.step(200, BACKWARD, INTERLEAVE);
+  motor.step(140, BACKWARD, INTERLEAVE);
   delay(1000);
 }
