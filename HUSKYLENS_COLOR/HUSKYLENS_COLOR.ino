@@ -9,9 +9,9 @@
 #include <AFMotor.h>
 #include <LiquidCrystal_I2C.h>
 
-LiquidCrystal_I2C lcd(0x27,20,4);
+LiquidCrystal_I2C lcd(0x27, 20, 4);
 
-SoftwareSerial mySerial(10, 11); // RX, TX
+SoftwareSerial mySerial(10, 11);  // RX, TX
 void printResult(HUSKYLENSResult result);
 
 // Number of steps per output rotation
@@ -27,22 +27,22 @@ int index_other = 0;
 //HUSKYLENS green line >> SDA; blue line >> SCL
 //HUSKYLENS yellow line >> GND; red line >> 5V
 
-void print(){
-      Serial.print(index_yellow);
-      Serial.print(",");
-      Serial.print(index_pink);
-      Serial.print(",");
-      Serial.print(index_other);
-      Serial.println();
-      lcd.setCursor(5,0);
-      lcd.print(index_yellow);
-      lcd.print("-");
-      lcd.print(index_pink);
-      lcd.print("-");
-      lcd.print(index_other);
+void print() {
+  Serial.print(index_yellow);
+  Serial.print(",");
+  Serial.print(index_pink);
+  Serial.print(",");
+  Serial.print(index_other);
+  Serial.println();
+  lcd.setCursor(5, 0);
+  lcd.print(index_yellow);
+  lcd.print("-");
+  lcd.print(index_pink);
+  lcd.print("-");
+  lcd.print(index_other);
 }
 void setup() {
-  lcd.init();                      // initialize the lcd 
+  lcd.init();  // initialize the lcd
   lcd.backlight();
   Serial.begin(9600);
   mySerial.begin(9600);
@@ -84,16 +84,16 @@ void loop() {
         if (result.ID == 1 && index_yellow < 4) {
           index_yellow++;
           //set the stepper motor to be at the initial position
-            motor.step(140, FORWARD, INTERLEAVE);
-            delay(200);
-            motor.step(140, BACKWARD, INTERLEAVE);
+          motor.step(140, FORWARD, INTERLEAVE);
+          delay(200);
+          motor.step(140, BACKWARD, INTERLEAVE);
 
         } else if (result.ID == 2 && index_pink < 4) {
           index_pink++;
           //set the stepper motor to be at the initial position + 120 degrees
-            motor.step(140, BACKWARD, INTERLEAVE);
-            delay(200);
-            motor.step(140, FORWARD, INTERLEAVE);
+          motor.step(140, BACKWARD, INTERLEAVE);
+          delay(200);
+          motor.step(140, FORWARD, INTERLEAVE);
 
         } else {
           index_other++;
