@@ -1,0 +1,202 @@
+{% extends 'layout.twig' %} {% block body %}
+<div class="row mt-2">
+	<div class="col-12">
+		<h1 class="display-3">Balls sorting</h1>
+	</div>
+</div>
+<div class="row mt-2">
+	<div class="col-8">
+		<div class="card shadow">
+			<div class="card-body">
+				<h4 class="card-title">Live data (data updates each seconds)</h4>
+				<p class="card-text">
+					Last acquired data at <span id="timestamp">...waiting...</span>.
+				</p>
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Yellow container</th>
+							<th>Pink container</th>
+							<th>Other container</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td
+								scope="row"
+								id="measureYellow">
+								nA
+							</td>
+							<td id="measurePink">nA</td>
+							<td id="measureOther">nA</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div class="col-2">
+		<div class="card shadow">
+			<div class="card-body">
+				<h4 class="card-title">Control</h4>
+				<p class="card-text">Use these controls to start or stop a record</p>
+				<button
+					type="button"
+					name=""
+					id="start"
+					class="btn btn-success btn-lg btn-block"
+					style="display: block">
+					Start
+				</button>
+				<button
+					type="button"
+					name=""
+					id="stop"
+					class="btn btn-warning btn-lg btn-block"
+					style="display: none">
+					Stop
+				</button>
+
+				<p class="card-text">Current state : <span id="state">nA</span></p>
+			</div>
+		</div>
+	</div>
+	<div class="col-2">
+		<div class="card shadow">
+			<div class="card-body">
+				<h4 class="card-title">Reset</h4>
+				<p class="card-text">Use this button to reset</p>
+				<button
+					type="button"
+					name=""
+					id="reset"
+					class="btn btn-primary btn-lg btn-block"
+					style="display: block">
+					Reset
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row d-print-none">
+	<div class="col-12">
+		<div class="card shadow">
+			<div class="card-body">
+				<canvas id="graph"></canvas>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %} {% block scripts %}
+
+<script type="text/javascript">
+	$(() => {
+		setInterval(() => {
+			$.ajax({
+				type: "post",
+				url: "/api/state",
+				dataType: "json",
+				success: function (response) {
+					console.log(response);
+					$("#timestamp").text(response.lastTimestamp);
+					$("#measureYellow").text(response.lastAcquisitionYellow);
+					$("#measurePink").text(response.lastAcquisitionPink);
+					$("#measureOther").text(response.lastAcquisitionOther);
+					$("#state").text(response.idle ? "IDLE" : "recording...");
+					if (response.idle) {
+						$("#start").show();
+						$("#stop").hide();
+					} else {
+						$("#stop").show();
+						$("#start").hide();
+					}
+				},
+			});
+		}, 1000);
+	});
+
+	$("#start").click(function (e) {
+		e.preventDefault();
+		$.post("/api/start", function (data, textStatus, jqXHR) {}, "json");
+	});
+
+	$("#stop").click(function (e) {
+		e.preventDefault();
+		$.post("/api/stop", function (data, textStatus, jqXHR) {}, "json");
+	});
+
+	$("#reset").click(function (e) {
+		e.preventDefault();
+		$.post("/api/reset", function (data, textStatus, jqXHR) {}, "json");
+	});
+</script>
+
+<script src="/chart.umd.js"></script>
+
+<script type="text/javascript">
+	$(() => {
+		//let table = new DataTable("#table")
+		let barChart = null;
+
+		$("#session").change(function (e) {
+			e.preventDefault();
+			console.log(e.currentTarget.value);
+
+			$.ajax({
+				type: "POST",
+				url: "/api/getSessionValues",
+				data: { idSession: e.currentTarget.value },
+				dataType: "json",
+				success: function (response) {
+					// console.log(response);
+					$("#mesures").empty();
+					//table.clear()
+
+					let labels = ["Pink, Yellow, Others"];
+					let values = [];
+
+					response.forEach((measure) => {
+						values.push(measure.ContainerValues.valuePink);
+						values.push(measure.ContainerValues.valueYellow);
+						values.push(measure.ContainerValues.valueOthers);
+					});
+
+					// Gestion du graphique
+					const data = {
+						labels: labels,
+						datasets: [
+							{
+								label: "Acquisition",
+								data: values,
+								backgroundColor: [
+									"rgba(255, 99, 132, 0.2)",
+									"rgba(255, 205, 86, 0.2)",
+									"rgba(153, 102, 255, 0.2)",
+								],
+								tension: 0.1,
+							},
+						],
+					};
+
+					if (barChart === null) {
+						const graph = $("#graph");
+						barChart = new Chart(graph, {
+							type: "bar",
+							data: data,
+						});
+					} else {
+						barChart.destroy();
+						const graph = $("#graph");
+						barChart = new Chart(graph, {
+							type: "bar",
+							data: data,
+						});
+					}
+				},
+			});
+		});
+	});
+</script>
+
+{% endblock %}

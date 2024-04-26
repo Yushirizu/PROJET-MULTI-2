@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model ContainerValues {
+  idContainerValues Int       @id @default(autoincrement())
+  valuePink         Int
+  valueYellow       Int
+  valueOthers       Int
+  Measure           Measure[]
+}
+
+model Measure {
+  idMeasure         Int             @id @default(autoincrement())
+  idSession         Int
+  idContainerValues Int
+  time              DateTime        @db.DateTime(0)
+  Session           Session         @relation(fields: [idSession], references: [idSession], onUpdate: Restrict, map: "Measure_ibfk_1")
+  ContainerValues   ContainerValues @relation(fields: [idContainerValues], references: [idContainerValues], onUpdate: Restrict, map: "Measure_ibfk_2")
+
+  @@index([idContainerValues], map: "idContainerValues")
+  @@index([idSession], map: "idSession")
+}
+
+model Session {
+  idSession Int       @id @default(autoincrement())
+  name      DateTime  @default(now()) @db.DateTime(0)
+  start     DateTime  @default(now()) @db.DateTime(0)
+  stop      DateTime? @db.DateTime(0)
+  mesures   Measure[]
+}

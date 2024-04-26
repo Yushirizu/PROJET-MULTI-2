@@ -1,0 +1,91 @@
+{% extends "layout.twig" %} {% block body %}
+
+<div class="row mt-2">
+	<div class="col-12">
+		<h1 class="display-3">Historic</h1>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-12 mb-2">
+		<div class="card shadow">
+			<div class="card-body">
+				<h4 class="card-title">Recorded sessions</h4>
+				<select
+					name="session"
+					id="session">
+					{% for session in sessions %}
+					<option value="{{ session.idSession }}">
+						{{ session.name | date }}
+					</option>
+					{% endfor %}
+				</select>
+				<table
+					id="table"
+					class="table mt-2">
+					<thead>
+						<tr>
+							<th>Timestamp</th>
+							<th>PinkValue</th>
+							<th>YellowValue</th>
+							<th>OtherValue</th>
+						</tr>
+					</thead>
+					<tbody id="mesures"></tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% endblock %} {% block scripts %}
+
+<script type="text/javascript">
+	$(() => {
+		let barChart = null;
+
+		$("#session").change(function (e) {
+			e.preventDefault();
+			$.ajax({
+				type: "POST",
+				url: "/api/getSessionValues",
+				data: { idSession: e.currentTarget.value },
+				dataType: "json",
+				success: function (response) {
+					$("#mesures").empty();
+					let labels = [];
+					let values = [];
+					let cpt = 1;
+
+					response.forEach((measure) => {
+						const row = document.createElement("tr");
+						const timestamp = document.createElement("td");
+						timestamp.innerHTML = measure.time;
+						const valuePink = document.createElement("td");
+						valuePink.innerHTML = measure.ContainerValues.valuePink;
+						const valueYellow = document.createElement("td");
+						valueYellow.innerHTML = measure.ContainerValues.valueYellow;
+						const valueOthers = document.createElement("td");
+						valueOthers.innerHTML = measure.ContainerValues.valueOthers;
+
+						row.appendChild(timestamp);
+						row.appendChild(valuePink);
+						row.appendChild(valueYellow);
+						row.appendChild(valueOthers);
+						$("#mesures").append(row);
+
+						labels.push(cpt++);
+						values.push(measure.ContainerValues.valuePink);
+						values.push(measure.ContainerValues.valueYellow);
+						values.push(measure.ContainerValues.valueOthers);
+					});
+				},
+			});
+		});
+	});
+</script>
+{% endblock %} {% block stylesheets %}
+<link
+	href="https://cdn.datatables.net/v/bs4/dt-2.0.3/datatables.min.css"
+	rel="stylesheet" />
+{% endblock %}
