@@ -5,8 +5,14 @@
 *****************************************************/
 
 #include "HUSKYLENS.h"
-#include "Wire.h"
+#include "SoftwareSerial.h"
 #include <AFMotor.h>
+#include <LiquidCrystal_I2C.h>
+
+LiquidCrystal_I2C lcd(0x27,20,4);
+
+SoftwareSerial mySerial(10, 11); // RX, TX
+void printResult(HUSKYLENSResult result);
 
 // Number of steps per output rotation
 // Change this as per your motor's specification
@@ -20,13 +26,30 @@ int index_yellow = 0;
 int index_other = 0;
 //HUSKYLENS green line >> SDA; blue line >> SCL
 //HUSKYLENS yellow line >> GND; red line >> 5V
+
+void print(){
+      Serial.print(index_yellow);
+      Serial.print(",");
+      Serial.print(index_pink);
+      Serial.print(",");
+      Serial.print(index_other);
+      Serial.println();
+      lcd.setCursor(5,0);
+      lcd.print(index_yellow);
+      lcd.print("-");
+      lcd.print(index_pink);
+      lcd.print("-");
+      lcd.print(index_other);
+}
 void setup() {
+  lcd.init();                      // initialize the lcd 
+  lcd.backlight();
   Serial.begin(9600);
-  Wire.begin();
+  mySerial.begin(9600);
   motor.setSpeed(20);
   //huskylens.setCustomName("Yellow",1);
   //huskylens.setCustomName("Pink" , 2);
-  while (!huskylens.begin(Wire)) {
+  while (!huskylens.begin(mySerial)) {
     //Serial.println("1.Please recheck the \"Protocol Type\" in HUSKYLENS (General Settings>>Protocol Type>>I2C)");
     //Serial.println("2.Please recheck the connection.");
     delay(100);
@@ -76,12 +99,7 @@ void loop() {
           index_other++;
         }
       }
-      Serial.print(index_yellow);
-      Serial.print(",");
-      Serial.print(index_pink);
-      Serial.print(",");
-      Serial.print(index_other);
-      Serial.println();
+      print();
       delay(1000);
     }
   }
