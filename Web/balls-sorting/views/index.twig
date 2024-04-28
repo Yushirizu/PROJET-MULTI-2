@@ -1,12 +1,12 @@
 {% extends 'layout.twig' %} {% block body %}
 <div class="row mt-2">
 	<div class="col-12">
-		<h1 class="display-3">Balls sorting</h1>
+		<h1 class="display-4">Balls sorting</h1>
 	</div>
 </div>
 <div class="row mt-2">
 	<div class="col-8">
-		<div class="card shadow">
+		<div class="card shadow mb-1">
 			<div class="card-body">
 				<h4 class="card-title">Live data (data updates each seconds)</h4>
 				<p class="card-text">
@@ -35,55 +35,66 @@
 			</div>
 		</div>
 	</div>
-	<div class="col-2">
+	<div class="col-4">
 		<div class="card shadow">
 			<div class="card-body">
-				<h4 class="card-title">Control</h4>
-				<p class="card-text">Use these controls to start or stop a record</p>
-				<button
-					type="button"
-					name=""
-					id="start"
-					class="btn btn-success btn-lg btn-block"
-					style="display: block">
-					Start
-				</button>
-				<button
-					type="button"
-					name=""
-					id="stop"
-					class="btn btn-warning btn-lg btn-block"
-					style="display: none">
-					Stop
-				</button>
+				<div class="row">
+					<div class="col-6">
+						<h4 class="card-title">Control</h4>
+						<p class="card-text">
+							Use these controls to start or stop a record
+						</p>
+						<button
+							type="button"
+							name=""
+							id="start"
+							class="btn btn-success btn-lg btn-block"
+							style="display: block">
+							Start
+						</button>
+						<button
+							type="button"
+							name=""
+							id="stop"
+							class="btn btn-warning btn-lg btn-block"
+							style="display: none">
+							Stop
+						</button>
 
-				<p class="card-text">Current state : <span id="state">nA</span></p>
-			</div>
-		</div>
-	</div>
-	<div class="col-2">
-		<div class="card shadow">
-			<div class="card-body">
-				<h4 class="card-title">Reset</h4>
-				<p class="card-text">Use this button to reset</p>
-				<button
-					type="button"
-					name=""
-					id="reset"
-					class="btn btn-primary btn-lg btn-block"
-					style="display: block">
-					Reset
-				</button>
+						<p class="card-text">Current state : <span id="state">nA</span></p>
+					</div>
+					<div class="col-6">
+						<h4 class="card-title">Reset</h4>
+						<p class="card-text">Use this button to reset</p>
+						<button
+							type="button"
+							name=""
+							id="reset"
+							class="btn btn-primary btn-lg btn-block"
+							style="display: block">
+							Reset
+						</button>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
 </div>
 
-<div class="row d-print-none">
-	<div class="col-12">
-		<div class="card shadow">
+<div class="row">
+	<div class="col-12 mt-3">
+		<!-- Bar Chart -->
+		<div class="card shadow mb-4">
+			<div class="card-header py-3">
+				<h6 class="m-0 font-weight-bold text-primary">Real time bar chart</h6>
+			</div>
 			<div class="card-body">
-				<canvas id="graph"></canvas>
+				<canvas
+					id="graph"
+					style="display: block; height: 320px; width: 793px"
+					width="991"
+					height="400"
+					class="chartjs-render-monitor"></canvas>
 			</div>
 		</div>
 	</div>
@@ -100,7 +111,7 @@
 				labels: ["Yellow", "Pink", "Others"],
 				datasets: [
 					{
-						label: "Number of balls in the containers",
+						label: "Balls count",
 						data: [0, 0, 0], // Initialize with zero data
 						backgroundColor: [
 							"rgba(255, 255, 0, 0.2)",

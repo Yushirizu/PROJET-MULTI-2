@@ -2,11 +2,11 @@
 
 <div class="row mt-2">
 	<div class="col-12">
-		<h1 class="display-3">Historic</h1>
+		<h1 class="display-4">Historic</h1>
 	</div>
 </div>
 
-<div class="row">
+<div class="row mt-2">
 	<div class="col-12 mb-2">
 		<div class="card shadow">
 			<div class="card-body">
@@ -26,9 +26,9 @@
 					<thead>
 						<tr>
 							<th>Timestamp</th>
-							<th>PinkValue</th>
-							<th>YellowValue</th>
-							<th>OtherValue</th>
+							<th>Pink balls</th>
+							<th>Yellow balls</th>
+							<th>Other container</th>
 						</tr>
 					</thead>
 					<tbody id="mesures"></tbody>
@@ -38,8 +38,29 @@
 	</div>
 </div>
 
-{% endblock %} {% block scripts %}
+<div class="row">
+	<div class="col-12 mt-3">
+		<!-- Bar Chart -->
+		<div class="card shadow mb-4">
+			<div class="card-header py-3">
+				<h6 class="m-0 font-weight-bold text-primary">
+					Balls in each containers by time
+				</h6>
+			</div>
+			<div class="card-body">
+				<canvas
+					id="graph"
+					style="display: block; height: 320px; width: 793px"
+					width="991"
+					height="400"
+					class="chartjs-render-monitor"></canvas>
+			</div>
+		</div>
+	</div>
+</div>
 
+{% endblock %} {% block scripts %}
+<script src="/chart.umd.js"></script>
 <script type="text/javascript">
 	$(() => {
 		let barChart = null;
@@ -54,13 +75,16 @@
 				success: function (response) {
 					$("#mesures").empty();
 					let labels = [];
-					let values = [];
-					let cpt = 1;
+					let valuesPink = [];
+					let valuesYellow = [];
+					let valuesOthers = [];
 
 					response.forEach((measure) => {
 						const row = document.createElement("tr");
 						const timestamp = document.createElement("td");
-						timestamp.innerHTML = measure.time;
+						let date = new Date(measure.time);
+						let formattedTime = date.toLocaleTimeString("fr-FR");
+						timestamp.innerHTML = formattedTime;
 						const valuePink = document.createElement("td");
 						valuePink.innerHTML = measure.ContainerValues.valuePink;
 						const valueYellow = document.createElement("td");
@@ -74,11 +98,46 @@
 						row.appendChild(valueOthers);
 						$("#mesures").append(row);
 
-						labels.push(cpt++);
-						values.push(measure.ContainerValues.valuePink);
-						values.push(measure.ContainerValues.valueYellow);
-						values.push(measure.ContainerValues.valueOthers);
+						labels.push(formattedTime);
+						valuesPink.push(measure.ContainerValues.valuePink);
+						valuesYellow.push(measure.ContainerValues.valueYellow);
+						valuesOthers.push(measure.ContainerValues.valueOthers);
 					});
+					let data = {
+						labels: labels,
+						datasets: [
+							{
+								label: "Pink",
+								data: valuesPink,
+								backgroundColor: "rgb(255, 99, 132)",
+							},
+							{
+								label: "Yellow",
+								data: valuesYellow,
+								backgroundColor: "rgb(255, 206, 86)",
+							},
+							{
+								label: "Others",
+								data: valuesOthers,
+								backgroundColor: "rgb(75, 192, 192)",
+							},
+						],
+					};
+
+					if (barChart === null) {
+						const graph = $("#graph");
+						barChart = new Chart(graph, {
+							type: "bar",
+							data: data,
+						});
+					} else {
+						barChart.destroy();
+						const graph = $("#graph");
+						barChart = new Chart(graph, {
+							type: "bar",
+							data: data,
+						});
+					}
 				},
 			});
 		});

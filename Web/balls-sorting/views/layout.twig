@@ -9,15 +9,25 @@
 			content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
 		<!-- Bootstrap CSS -->
+		{#
 		<link
 			rel="stylesheet"
 			href="/minty/bootstrap.min.css" />
+		#}
+		<link
+			rel="stylesheet"
+			href="/stylesheets/sb-admin-2.min.css" />
 		{% block stylesheets %}{% endblock %}
 	</head>
 	<body>
 		{% include "navbar.twig" %}
 
 		<div class="container">{% block body %}{% endblock %}</div>
+
+		<footer class="py-3 my-4">
+			<hr />
+			<p class="text-center text-muted">Made by Team 4</p>
+		</footer>
 		<!-- Optional JavaScript -->
 		<!-- jQuery first, then Popper.js, then Bootstrap JS -->
 		<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
