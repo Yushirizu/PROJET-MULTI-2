@@ -5,12 +5,15 @@
 	</div>
 </div>
 <div class="row mt-2">
-	<div class="col-8">
-		<div class="card shadow mb-1">
+	<div class="col-8 d-flex">
+		<div class="card shadow flex-grow-1">
 			<div class="card-body">
 				<h4 class="card-title">Live data (data updates each seconds)</h4>
 				<p class="card-text">
 					Last acquired data at <span id="timestamp">...waiting...</span>.
+				</p>
+				<p class="card-text">
+					State of the containers : <span id="measure">empty</span>
 				</p>
 				<table class="table">
 					<thead>
@@ -35,8 +38,8 @@
 			</div>
 		</div>
 	</div>
-	<div class="col-4">
-		<div class="card shadow">
+	<div class="col-4 d-flex">
+		<div class="card shadow flex-grow-1">
 			<div class="card-body">
 				<div class="row">
 					<div class="col-6">
@@ -44,36 +47,52 @@
 						<p class="card-text">
 							Use these controls to start or stop a record
 						</p>
-						<button
-							type="button"
-							name=""
-							id="start"
-							class="btn btn-success btn-lg btn-block"
-							style="display: block">
-							Start
-						</button>
-						<button
-							type="button"
-							name=""
-							id="stop"
-							class="btn btn-warning btn-lg btn-block"
-							style="display: none">
-							Stop
-						</button>
-
-						<p class="card-text">Current state : <span id="state">nA</span></p>
+						<p class="card-text"><span id="state">nA</span></p>
 					</div>
 					<div class="col-6">
 						<h4 class="card-title">Reset</h4>
 						<p class="card-text">Use this button to reset</p>
-						<button
-							type="button"
-							name=""
-							id="reset"
-							class="btn btn-primary btn-lg btn-block"
-							style="display: block">
-							Reset
-						</button>
+					</div>
+				</div>
+				<div class="mt-4">
+					<div class="row">
+						<div class="col-6">
+							<a
+								href="#"
+								class="btn btn-success btn-icon-split"
+								id="start">
+								<span class="icon text-white-50">
+									<i
+										class="fa fa-play"
+										aria-hidden="true"></i>
+								</span>
+								<span class="text">Start</span>
+							</a>
+							<a
+								href="#"
+								class="btn btn-warning btn-icon-split"
+								id="stop">
+								<span class="icon text-white-50">
+									<i
+										class="fa fa-square"
+										aria-hidden="true"></i>
+								</span>
+								<span class="text">Stop</span>
+							</a>
+						</div>
+						<div class="col-6">
+							<a
+								href="#"
+								class="btn btn-primary btn-icon-split"
+								id="reset">
+								<span class="icon text-white-50">
+									<i
+										class="fa fa-arrows-rotate"
+										aria-hidden="true"></i>
+								</span>
+								<span class="text">Reset</span>
+							</a>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -112,7 +131,7 @@
 				datasets: [
 					{
 						label: "Balls count",
-						data: [0, 0, 0], // Initialize with zero data
+						data: [0, 0, 0],
 						backgroundColor: [
 							"rgba(255, 255, 0, 0.2)",
 							"rgba(255, 192, 203, 0.2)",
@@ -127,13 +146,6 @@
 					},
 				],
 			},
-			options: {
-				scales: {
-					y: {
-						beginAtZero: true,
-					},
-				},
-			},
 		});
 
 		setInterval(() => {
@@ -147,6 +159,21 @@
 					$("#measureYellow").text(response.lastAcquisitionYellow);
 					$("#measurePink").text(response.lastAcquisitionPink);
 					$("#measureOther").text(response.lastAcquisitionOther);
+					if (
+						response.lastAcquisitionYellow +
+							response.lastAcquisitionPink +
+							response.lastAcquisitionOther ===
+						0
+					) {
+						$("#measure").text("empty");
+					} else {
+						$("#measure").text(
+							response.lastAcquisitionYellow +
+								response.lastAcquisitionPink +
+								response.lastAcquisitionOther +
+								" balls total"
+						);
+					}
 					$("#state").text(response.idle ? "IDLE" : "recording...");
 					if (response.idle) {
 						$("#start").show();

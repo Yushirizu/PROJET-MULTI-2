@@ -26,8 +26,8 @@
 					<thead>
 						<tr>
 							<th>Timestamp</th>
-							<th>Pink balls</th>
 							<th>Yellow balls</th>
+							<th>Pink balls</th>
 							<th>Other container</th>
 						</tr>
 					</thead>
@@ -85,10 +85,10 @@
 						let date = new Date(measure.time);
 						let formattedTime = date.toLocaleTimeString("fr-FR");
 						timestamp.innerHTML = formattedTime;
-						const valuePink = document.createElement("td");
-						valuePink.innerHTML = measure.ContainerValues.valuePink;
 						const valueYellow = document.createElement("td");
 						valueYellow.innerHTML = measure.ContainerValues.valueYellow;
+						const valuePink = document.createElement("td");
+						valuePink.innerHTML = measure.ContainerValues.valuePink;
 						const valueOthers = document.createElement("td");
 						valueOthers.innerHTML = measure.ContainerValues.valueOthers;
 
@@ -107,19 +107,19 @@
 						labels: labels,
 						datasets: [
 							{
-								label: "Pink",
+								label: "Yellow",
 								data: valuesPink,
-								backgroundColor: "rgb(255, 99, 132)",
+								backgroundColor: "rgba(255, 255, 0, 0.2)",
 							},
 							{
-								label: "Yellow",
+								label: "Pink",
 								data: valuesYellow,
-								backgroundColor: "rgb(255, 206, 86)",
+								backgroundColor: "rgba(255, 192, 203, 0.2)",
 							},
 							{
 								label: "Others",
 								data: valuesOthers,
-								backgroundColor: "rgb(75, 192, 192)",
+								backgroundColor: "rgba(0, 0, 255 , 0.2)",
 							},
 						],
 					};
@@ -131,20 +131,12 @@
 							data: data,
 						});
 					} else {
-						barChart.destroy();
-						const graph = $("#graph");
-						barChart = new Chart(graph, {
-							type: "bar",
-							data: data,
-						});
+						barChart.data = data;
+						barChart.update();
 					}
 				},
 			});
 		});
 	});
 </script>
-{% endblock %} {% block stylesheets %}
-<link
-	href="https://cdn.datatables.net/v/bs4/dt-2.0.3/datatables.min.css"
-	rel="stylesheet" />
 {% endblock %}

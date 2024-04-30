@@ -47,6 +47,7 @@ void setup() {
   Serial.begin(9600);
   mySerial.begin(9600);
   motor.setSpeed(20);
+  pinMode(3, INPUT_PULLUP);
   //huskylens.setCustomName("Yellow",1);
   //huskylens.setCustomName("Pink" , 2);
   while (!huskylens.begin(mySerial)) {
@@ -58,6 +59,7 @@ void setup() {
 }
 
 void loop() {
+
   if (Serial.available() > 0) {
     // Read the incoming data
     String data = Serial.readString();
@@ -68,6 +70,13 @@ void loop() {
       index_pink = 0;
       index_yellow = 0;
       index_other = 0;
+
+      lcd.setCursor(5, 0);
+      lcd.print(0);
+      lcd.print("-");
+      lcd.print(0);
+      lcd.print("-");
+      lcd.print(0);
     }
   }
   if (!huskylens.request())
@@ -84,16 +93,16 @@ void loop() {
         if (result.ID == 1 && index_yellow < 4) {
           index_yellow++;
           //set the stepper motor to be at the initial position
-          motor.step(140, FORWARD, INTERLEAVE);
-          delay(200);
-          motor.step(140, BACKWARD, INTERLEAVE);
+          motor.step(140, FORWARD, DOUBLE);
+          delay(1000);
+          motor.step(140, BACKWARD, DOUBLE);
 
         } else if (result.ID == 2 && index_pink < 4) {
           index_pink++;
           //set the stepper motor to be at the initial position + 120 degrees
-          motor.step(140, BACKWARD, INTERLEAVE);
-          delay(200);
-          motor.step(140, FORWARD, INTERLEAVE);
+          motor.step(140, BACKWARD, DOUBLE);
+          delay(1000);
+          motor.step(140, FORWARD, DOUBLE);
 
         } else {
           index_other++;

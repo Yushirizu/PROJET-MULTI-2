@@ -85,7 +85,7 @@ router.get("/log", async (req, res, next) => {
 	res.render("historic", { sessions: sessions });
 });
 
-// Get the values of the session
+/*------Get the values of the last acquisition------*/
 
 router.post("/api/getSessionValues", (req, res, next) => {
 	const idSession = Number(req.body.idSession);
@@ -132,8 +132,9 @@ router.post("/api/stop", (req, res, next) => {
 	}
 });
 
+/*------Send reset to the arduino----------*/
+
 router.post("/api/reset", (req, res, next) => {
-	//send reset the index of the arduino
 	console.log("RESET");
 	arduino.write("RESET");
 	reset();
@@ -145,10 +146,11 @@ router.post("/api/state", (req, res, next) => {
 });
 
 async function startLogging() {
-	// Creer une nouvelle session
 	currentSession = await prisma.session.create({});
 	console.log(currentSession);
 }
+
+/*------Reset the values of the last acquisition------*/
 
 function reset() {
 	etat.lastAcquisitionPink = 0;
@@ -157,10 +159,12 @@ function reset() {
 	etat.idle = true;
 }
 
+/*------Stop the data acquisition------*/
+
 function stopLogging() {
-	// Arreter la session en cours
 	prisma.session
 		.update({
+			// Update the stop time of the current session
 			where: {
 				idSession: currentSession.idSession,
 			},
