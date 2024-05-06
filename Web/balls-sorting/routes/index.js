@@ -17,7 +17,7 @@ const arduino = new SerialPort({
 });
 
 arduino.on("error", (err) => {
-	console.log(err);
+	console.log("Error with arduino connection :", err);
 });
 
 //---------State of the system---------
@@ -48,32 +48,33 @@ parser.on("data", (data) => {
 	if (etat.idle === false && currentSession) {
 		console.log(etat);
 		// Save the data in the database
-		prisma.containerValues
-			.create({
-				data: {
-					valuePink: etat.lastAcquisitionPink,
-					valueYellow: etat.lastAcquisitionYellow,
-					valueOthers: etat.lastAcquisitionOther,
-				},
-			})
-			.then((containerValues) => {
-				console.log("ContainerValues created:", containerValues);
-				return prisma.measure.create({
-					data: {
-						idSession: currentSession.idSession,
-						time: etat.lastTimestamp,
-						idContainerValues: containerValues.idContainerValues,
-					},
-				});
-			})
-			.then((measure) => {
-				console.log("Measure created:", measure);
-			})
-			.catch((error) => {
-				console.error("Error:", error);
-			});
+		createContainerValuesAndMeasure();
 	}
 });
+
+async function createContainerValuesAndMeasure() {
+	try {
+		const result = await prisma.containerValues.create({
+			data: {
+				valuePink: etat.lastAcquisitionPink,
+				valueYellow: etat.lastAcquisitionYellow,
+				valueOthers: etat.lastAcquisitionOther,
+				measure: {
+					create: {
+						idSession: currentSession.idSession,
+						time: etat.lastTimestamp,
+					},
+				},
+			},
+			include: {
+				measure: true,
+			},
+		});
+		console.log("ContainerValues and related Measure created:", result);
+	} catch (error) {
+		console.error("Error:", error);
+	}
+}
 
 /* GET home page. */
 router.get("/", function (req, res, next) {
@@ -135,13 +136,13 @@ router.post("/api/stop", (req, res, next) => {
 /*------Send reset to the arduino----------*/
 
 router.post("/api/reset", (req, res, next) => {
-	console.log("RESET");
 	arduino.write("RESET");
 	reset();
 	res.status(200).send();
 });
 
 router.post("/api/state", (req, res, next) => {
+	console.log(req.body);
 	res.status(200).json(etat);
 });
 

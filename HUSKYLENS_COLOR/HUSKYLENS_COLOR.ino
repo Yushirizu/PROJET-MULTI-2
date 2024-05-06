@@ -11,21 +11,12 @@
 
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
-SoftwareSerial mySerial(10, 11);  // RX, TX
-void printResult(HUSKYLENSResult result);
-
-// Number of steps per output rotation
-// Change this as per your motor's specification
 const int stepsPerRevolution = 200;
-
-// connect motor to port #2 (M3 and M4)
 AF_Stepper motor(stepsPerRevolution, 2);
 HUSKYLENS huskylens;
 int index_pink = 0;
 int index_yellow = 0;
 int index_other = 0;
-//HUSKYLENS green line >> SDA; blue line >> SCL
-//HUSKYLENS yellow line >> GND; red line >> 5V
 
 void print() {
   Serial.print(index_yellow);
@@ -45,21 +36,12 @@ void setup() {
   lcd.init();  // initialize the lcd
   lcd.backlight();
   Serial.begin(9600);
-  mySerial.begin(9600);
   motor.setSpeed(20);
   pinMode(3, INPUT_PULLUP);
-  //huskylens.setCustomName("Yellow",1);
-  //huskylens.setCustomName("Pink" , 2);
-  while (!huskylens.begin(mySerial)) {
-    //Serial.println("1.Please recheck the \"Protocol Type\" in HUSKYLENS (General Settings>>Protocol Type>>I2C)");
-    //Serial.println("2.Please recheck the connection.");
-    delay(100);
-  }
   huskylens.writeAlgorithm(ALGORITHM_COLOR_RECOGNITION);  //Switch the algorithm to color recognition.
 }
 
 void loop() {
-
   if (Serial.available() > 0) {
     // Read the incoming data
     String data = Serial.readString();
@@ -92,17 +74,15 @@ void loop() {
       if (result.command == COMMAND_RETURN_BLOCK) {
         if (result.ID == 1 && index_yellow < 4) {
           index_yellow++;
-          //set the stepper motor to be at the initial position
-          motor.step(140, FORWARD, DOUBLE);
+          motor.step(140, FORWARD, INTERLEAVE);
           delay(1000);
-          motor.step(140, BACKWARD, DOUBLE);
+          motor.step(140, BACKWARD, INTERLEAVE);
 
         } else if (result.ID == 2 && index_pink < 4) {
           index_pink++;
-          //set the stepper motor to be at the initial position + 120 degrees
-          motor.step(140, BACKWARD, DOUBLE);
+          motor.step(140, BACKWARD, INTERLEAVE);
           delay(1000);
-          motor.step(140, FORWARD, DOUBLE);
+          motor.step(140, FORWARD, INTERLEAVE);
 
         } else {
           index_other++;
