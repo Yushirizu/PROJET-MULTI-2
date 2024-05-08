@@ -93,14 +93,14 @@
 						valueOthers.innerHTML = measure.ContainerValues.valueOthers;
 
 						row.appendChild(timestamp);
-						row.appendChild(valuePink);
 						row.appendChild(valueYellow);
+						row.appendChild(valuePink);
 						row.appendChild(valueOthers);
 						$("#mesures").append(row);
 
 						labels.push(formattedTime);
-						valuesPink.push(measure.ContainerValues.valuePink);
 						valuesYellow.push(measure.ContainerValues.valueYellow);
+						valuesPink.push(measure.ContainerValues.valuePink);
 						valuesOthers.push(measure.ContainerValues.valueOthers);
 					});
 					let data = {
@@ -108,12 +108,12 @@
 						datasets: [
 							{
 								label: "Yellow",
-								data: valuesPink,
+								data: valuesYellow,
 								backgroundColor: "rgba(255, 255, 0, 0.2)",
 							},
 							{
 								label: "Pink",
-								data: valuesYellow,
+								data: valuesPink,
 								backgroundColor: "rgba(255, 192, 203, 0.2)",
 							},
 							{

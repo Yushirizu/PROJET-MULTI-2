@@ -8,7 +8,7 @@ const e = require("express");
 
 //---------Connection to the arduino---------
 
-const port = "COM13";
+const port = "COM14";
 //const port = "/dev/ttyUSB0";
 
 const arduino = new SerialPort({
@@ -45,36 +45,35 @@ parser.on("data", (data) => {
 	etat.lastAcquisitionPink = Number(valuePink);
 	etat.lastAcquisitionYellow = Number(valueYellow);
 	etat.lastAcquisitionOther = Number(valueOther);
+	// Save the data in the database
 	if (etat.idle === false && currentSession) {
 		console.log(etat);
-		// Save the data in the database
-		createContainerValuesAndMeasure();
-	}
-});
-
-async function createContainerValuesAndMeasure() {
-	try {
-		const result = await prisma.containerValues.create({
-			data: {
-				valuePink: etat.lastAcquisitionPink,
-				valueYellow: etat.lastAcquisitionYellow,
-				valueOthers: etat.lastAcquisitionOther,
-				measure: {
-					create: {
+		prisma.containerValues
+			.create({
+				data: {
+					valuePink: etat.lastAcquisitionPink,
+					valueYellow: etat.lastAcquisitionYellow,
+					valueOthers: etat.lastAcquisitionOther,
+				},
+			})
+			.then((containerValues) => {
+				console.log("ContainerValues created:", containerValues);
+				return prisma.measure.create({
+					data: {
 						idSession: currentSession.idSession,
 						time: etat.lastTimestamp,
+						idContainerValues: containerValues.idContainerValues,
 					},
-				},
-			},
-			include: {
-				measure: true,
-			},
-		});
-		console.log("ContainerValues and related Measure created:", result);
-	} catch (error) {
-		console.error("Error:", error);
+				});
+			})
+			.then((measure) => {
+				console.log("Measure created:", measure);
+			})
+			.catch((error) => {
+				console.error("Error:", error);
+			});
 	}
-}
+});
 
 /* GET home page. */
 router.get("/", function (req, res, next) {

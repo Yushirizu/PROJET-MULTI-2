@@ -108,6 +108,7 @@ void loop()
           index_other++;
         }
       }
+      delay(500);
       print();
     }
   }
