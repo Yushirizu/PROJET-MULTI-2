@@ -13,7 +13,10 @@ LiquidCrystal_I2C lcd(0x27, 20, 4);
 
 const int stepsPerRevolution = 200;
 AF_Stepper motor(stepsPerRevolution, 2);
+
 HUSKYLENS huskylens;
+SoftwareSerial mySerial(10, 11);  // RX, TX
+
 int index_pink = 0;
 int index_yellow = 0;
 int index_other = 0;
@@ -38,6 +41,11 @@ void setup() {
   Serial.begin(9600);
   motor.setSpeed(20);
   pinMode(3, INPUT_PULLUP);
+  mySerial.begin(9600);
+  while (!huskylens.begin(mySerial)) {
+    Serial.println("Begin failed!");
+    delay(100);
+  }
   huskylens.writeAlgorithm(ALGORITHM_COLOR_RECOGNITION);  //Switch the algorithm to color recognition.
 }
 
@@ -89,7 +97,6 @@ void loop() {
         }
       }
       print();
-      delay(1000);
     }
   }
 }
