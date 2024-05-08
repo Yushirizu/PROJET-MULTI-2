@@ -1,7 +1,7 @@
 $(() => {
-	// Define the chart outside the setInterval function
-	const ctx = document.getElementById("graph").getContext("2d");
-	const barChart = new Chart(ctx, {
+	// Create the chart
+	const graph = $("#graph");
+	const barChart = new Chart(graph, {
 		type: "bar",
 		data: {
 			labels: ["Yellow", "Pink", "Others"],
@@ -39,10 +39,12 @@ $(() => {
 					$("#measureOther").text("nA");
 					$("#measure").text("empty");
 				}
+				// Display the last timestamp and the last measures
 				$("#timestamp").text(response.lastTimestamp);
 				$("#measureYellow").text(response.lastAcquisitionYellow);
 				$("#measurePink").text(response.lastAcquisitionPink);
 				$("#measureOther").text(response.lastAcquisitionOther);
+				// Display the total number of balls
 				if (
 					response.lastAcquisitionYellow +
 						response.lastAcquisitionPink +
@@ -58,7 +60,9 @@ $(() => {
 							" balls total"
 					);
 				}
+				// Update the state
 				$("#state").text(response.idle ? "IDLE" : "recording...");
+				// Update the buttons
 				if (response.idle) {
 					$("#start").show();
 					$("#stop").hide();

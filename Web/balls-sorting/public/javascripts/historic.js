@@ -28,6 +28,7 @@ $(() => {
 					const valueOthers = document.createElement("td");
 					valueOthers.innerHTML = measure.ContainerValues.valueOthers;
 
+					// Create the row
 					row.appendChild(timestamp);
 					row.appendChild(valueYellow);
 					row.appendChild(valuePink);
