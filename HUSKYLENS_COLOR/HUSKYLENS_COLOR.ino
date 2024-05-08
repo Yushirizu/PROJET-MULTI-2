@@ -12,16 +12,18 @@
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
 const int stepsPerRevolution = 200;
+const int steps = 140;
 AF_Stepper motor(stepsPerRevolution, 2);
 
 HUSKYLENS huskylens;
-SoftwareSerial mySerial(10, 11);  // RX, TX
+SoftwareSerial mySerial(10, 11); // RX, TX
 
 int index_pink = 0;
 int index_yellow = 0;
 int index_other = 0;
 
-void print() {
+void print()
+{
   Serial.print(index_yellow);
   Serial.print(",");
   Serial.print(index_pink);
@@ -35,27 +37,32 @@ void print() {
   lcd.print("-");
   lcd.print(index_other);
 }
-void setup() {
-  lcd.init();  // initialize the lcd
+void setup()
+{
+  lcd.init(); // initialize the lcd
   lcd.backlight();
   Serial.begin(9600);
   motor.setSpeed(20);
   pinMode(3, INPUT_PULLUP);
   mySerial.begin(9600);
-  while (!huskylens.begin(mySerial)) {
+  while (!huskylens.begin(mySerial))
+  {
     Serial.println("Begin failed!");
     delay(100);
   }
-  huskylens.writeAlgorithm(ALGORITHM_COLOR_RECOGNITION);  //Switch the algorithm to color recognition.
+  huskylens.writeAlgorithm(ALGORITHM_COLOR_RECOGNITION); // Switch the algorithm to color recognition.
 }
 
-void loop() {
-  if (Serial.available() > 0) {
+void loop()
+{
+  if (Serial.available() > 0)
+  {
     // Read the incoming data
     String data = Serial.readString();
 
     // Check if the data is the reset signal
-    if (data == "RESET") {
+    if (data == "RESET")
+    {
       // Perform the reset operation
       index_pink = 0;
       index_yellow = 0;
@@ -69,30 +76,35 @@ void loop() {
       lcd.print(0);
     }
   }
-  if (!huskylens.request())
+  if (!huskylens.request()) // Request data from HuskyLens.
     ;
-  else if (!huskylens.isLearned())
+  else if (!huskylens.isLearned()) // Check whether the HuskyLens has learned the data.
     ;
-  else if (!huskylens.available())
+  else if (!huskylens.available()) // Check whether the data is available.
     ;
-  else {
-    while (huskylens.available()) {
-      int steps = 205;
+  else
+  {
+    while (huskylens.available()) // Read the data from HuskyLens.
+    {
       HUSKYLENSResult result = huskylens.read();
-      if (result.command == COMMAND_RETURN_BLOCK) {
-        if (result.ID == 1 && index_yellow < 4) {
+      if (result.command == COMMAND_RETURN_BLOCK)
+      {
+        if (result.ID == 1 && index_yellow < 4)
+        {
           index_yellow++;
-          motor.step(140, FORWARD, INTERLEAVE);
+          motor.step(steps, FORWARD, INTERLEAVE);
           delay(1000);
-          motor.step(140, BACKWARD, INTERLEAVE);
-
-        } else if (result.ID == 2 && index_pink < 4) {
+          motor.step(steps, BACKWARD, INTERLEAVE);
+        }
+        else if (result.ID == 2 && index_pink < 4)
+        {
           index_pink++;
-          motor.step(140, BACKWARD, INTERLEAVE);
+          motor.step(steps, BACKWARD, INTERLEAVE);
           delay(1000);
-          motor.step(140, FORWARD, INTERLEAVE);
-
-        } else {
+          motor.step(steps, FORWARD, INTERLEAVE);
+        }
+        else
+        {
           index_other++;
         }
       }
