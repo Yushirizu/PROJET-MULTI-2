@@ -5,22 +5,28 @@
 *****************************************************/
 
 #include "HUSKYLENS.h"
+#include <Servo.h>
 #include "SoftwareSerial.h"
 #include <AFMotor.h>
 #include <LiquidCrystal_I2C.h>
 
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
-const int stepsPerRevolution = 140; //The resolution of the mottor is 200 but we had to down it to 140
+const int stepsPerRevolution = 140;  //The resolution of the mottor is 200 but we had to down it to 140
 const int steps = 140;
 AF_Stepper motor(stepsPerRevolution, 2);
 
 HUSKYLENS huskylens;
 SoftwareSerial mySerial(10, 11);  // RX, TX
+Servo myservo;  // create Servo object to control a servo
+// twelve Servo objects can be created on most boards
+
+int pos = 0; 
 
 int index_pink = 0;
 int index_yellow = 0;
 int index_other = 0;
+int color = 0;
 
 void print() {
   Serial.print(index_yellow);
@@ -29,7 +35,15 @@ void print() {
   Serial.print(",");
   Serial.print(index_other);
   Serial.println();
-  lcd.setCursor(2, 0);
+  lcd.clear();
+  lcd.setCursor(1, 0);
+  lcd.print("Ball : ");
+  if (color == 1) {
+    lcd.print("Yellow");
+  } else if (color == 2) {
+    lcd.print("Pink");
+  }
+  lcd.setCursor(2, 1);
   lcd.print("Y:");
   lcd.print(index_yellow);
   lcd.print(" ");
@@ -42,6 +56,7 @@ void print() {
 void setup() {
   lcd.init();  // initialize the lcd
   lcd.backlight();
+  myservo.attach(9); 
   Serial.begin(9600);
   motor.setSpeed(20);
   pinMode(3, INPUT_PULLUP);
@@ -64,6 +79,7 @@ void loop() {
       index_pink = 0;
       index_yellow = 0;
       index_other = 0;
+      color = 0;
       print();
     }
   }
@@ -78,22 +94,31 @@ void loop() {
     {
       HUSKYLENSResult result = huskylens.read();
       if (result.command == COMMAND_RETURN_BLOCK) {
-        if (result.ID == 1 && index_yellow < 4) {
-          index_yellow++;
-          motor.step(steps, FORWARD, INTERLEAVE);
-          delay(3000);
-          motor.step(steps, BACKWARD, INTERLEAVE);
-        } else if (result.ID == 2 && index_pink < 4) {
-          index_pink++;
-          motor.step(steps, BACKWARD, INTERLEAVE);
-          delay(3000);
-          motor.step(steps, FORWARD, INTERLEAVE);
-        } else {
-          index_other++;
+        if (result.ID == 1) {
+          color = 1;
+          if (index_yellow < 4) {
+            index_yellow++;
+            motor.step(steps, FORWARD, INTERLEAVE);
+            delay(3000);
+            motor.step(steps, BACKWARD, INTERLEAVE);
+          } else {
+            delay(500);
+            index_other++;
+          }
+        } else if (result.ID == 2) {
+          color = 2;
+          if (index_pink < 4) {
+            index_pink++;
+            motor.step(steps, BACKWARD, INTERLEAVE);
+            delay(3000);
+            motor.step(steps, FORWARD, INTERLEAVE);
+          } else {
+            delay(500);
+            index_other++;
+          }
         }
+        print();
       }
-      delay(500);
-      print();
     }
   }
 }
