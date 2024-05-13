@@ -30,11 +30,14 @@ void print()
   Serial.print(",");
   Serial.print(index_other);
   Serial.println();
-  lcd.setCursor(5, 0);
+  lcd.setCursor(2, 0);
+  lcd.print("Y:");
   lcd.print(index_yellow);
-  lcd.print("-");
+  lcd.print(" ");
+  lcd.print("P:");
   lcd.print(index_pink);
-  lcd.print("-");
+  lcd.print(" ");
+  lcd.print("O:");
   lcd.print(index_other);
 }
 void setup()
@@ -45,9 +48,9 @@ void setup()
   motor.setSpeed(20);
   pinMode(3, INPUT_PULLUP);
   mySerial.begin(9600);
-  while (!huskylens.begin(mySerial))
-  {
-    Serial.println("Begin failed!");
+    while (!huskylens.begin(mySerial)) {
+    Serial.println("1.Please recheck the \"Protocol Type\" in HUSKYLENS (General Settings>>Protocol Type>>I2C)");
+    Serial.println("2.Please recheck the connection.");
     delay(100);
   }
   huskylens.writeAlgorithm(ALGORITHM_COLOR_RECOGNITION); // Switch the algorithm to color recognition.
@@ -59,7 +62,6 @@ void loop()
   {
     // Read the incoming data
     String data = Serial.readString();
-
     // Check if the data is the reset signal
     if (data == "RESET")
     {
@@ -92,16 +94,16 @@ void loop()
         if (result.ID == 1 && index_yellow < 4)
         {
           index_yellow++;
-          motor.step(steps, FORWARD, INTERLEAVE);
+          motor.step(steps, FORWARD, DOUBLE);
           delay(1000);
-          motor.step(steps, BACKWARD, INTERLEAVE);
+          motor.step(steps, BACKWARD, DOUBLE);
         }
         else if (result.ID == 2 && index_pink < 4)
         {
           index_pink++;
-          motor.step(steps, BACKWARD, INTERLEAVE);
+          motor.step(steps, BACKWARD, DOUBLE);
           delay(1000);
-          motor.step(steps, FORWARD, INTERLEAVE);
+          motor.step(steps, FORWARD, DOUBLE);
         }
         else
         {
