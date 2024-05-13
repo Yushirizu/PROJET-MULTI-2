@@ -33,7 +33,7 @@ $(() => {
 					row.appendChild(valueYellow);
 					row.appendChild(valuePink);
 					row.appendChild(valueOthers);
-					$("#mesures").append(row);
+					$("#measures").append(row);
 
 					labels.push(formattedTime);
 					valuesYellow.push(measure.ContainerValues.valueYellow);

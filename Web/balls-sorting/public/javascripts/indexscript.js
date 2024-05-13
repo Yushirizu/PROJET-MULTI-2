@@ -38,12 +38,13 @@ $(() => {
 					$("#measurePink").text("nA");
 					$("#measureOther").text("nA");
 					$("#measure").text("empty");
+				} else {
+					// Display the last timestamp and the last measures
+					$("#timestamp").text(response.lastTimestamp);
+					$("#measureYellow").text(response.lastAcquisitionYellow);
+					$("#measurePink").text(response.lastAcquisitionPink);
+					$("#measureOther").text(response.lastAcquisitionOther);
 				}
-				// Display the last timestamp and the last measures
-				$("#timestamp").text(response.lastTimestamp);
-				$("#measureYellow").text(response.lastAcquisitionYellow);
-				$("#measurePink").text(response.lastAcquisitionPink);
-				$("#measureOther").text(response.lastAcquisitionOther);
 				// Display the total number of balls
 				if (
 					response.lastAcquisitionYellow +
