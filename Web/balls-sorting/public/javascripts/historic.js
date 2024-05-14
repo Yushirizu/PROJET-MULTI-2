@@ -9,7 +9,7 @@ $(() => {
 			data: { idSession: e.currentTarget.value },
 			dataType: "json",
 			success: function (response) {
-				$("#mesures").empty();
+				$("#measures").empty();
 				let labels = [];
 				let valuesPink = [];
 				let valuesYellow = [];
