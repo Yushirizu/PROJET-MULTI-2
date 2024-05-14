@@ -5,23 +5,17 @@
 *****************************************************/
 
 #include "HUSKYLENS.h"
-#include <Servo.h>
 #include "SoftwareSerial.h"
 #include <AFMotor.h>
 #include <LiquidCrystal_I2C.h>
 
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
-const int stepsPerRevolution = 140;  //The resolution of the mottor is 200 but we had to down it to 140
-const int steps = 140;
+const int stepsPerRevolution = 200;  //The resolution of the mottor is 200 but we had to down it to 140
+const int steps = 145;
 AF_Stepper motor(stepsPerRevolution, 2);
-
 HUSKYLENS huskylens;
 SoftwareSerial mySerial(10, 11);  // RX, TX
-Servo myservo;  // create Servo object to control a servo
-// twelve Servo objects can be created on most boards
-
-int pos = 0; 
 
 int index_pink = 0;
 int index_yellow = 0;
@@ -56,10 +50,9 @@ void print() {
 void setup() {
   lcd.init();  // initialize the lcd
   lcd.backlight();
-  myservo.attach(9); 
   Serial.begin(9600);
   motor.setSpeed(20);
-  pinMode(3, INPUT_PULLUP);
+  pinMode(24, INPUT_PULLUP);
   mySerial.begin(9600);
   while (!huskylens.begin(mySerial)) {
     Serial.println("1.Please recheck the \"Protocol Type\" in HUSKYLENS (General Settings>>Protocol Type>>I2C)");
@@ -70,6 +63,14 @@ void setup() {
 }
 
 void loop() {
+  if (digitalRead(24) == LOW) {
+    delay(200);
+    index_pink = 0;
+    index_yellow = 0;
+    index_other = 0;
+    color = 0;
+    print();
+  }
   if (Serial.available() > 0) {
     // Read the incoming data
     String data = Serial.readString();
@@ -98,6 +99,7 @@ void loop() {
           color = 1;
           if (index_yellow < 4) {
             index_yellow++;
+            delay(10);
             motor.step(steps, FORWARD, INTERLEAVE);
             delay(3000);
             motor.step(steps, BACKWARD, INTERLEAVE);
@@ -109,6 +111,7 @@ void loop() {
           color = 2;
           if (index_pink < 4) {
             index_pink++;
+            delay(10);
             motor.step(steps, BACKWARD, INTERLEAVE);
             delay(3000);
             motor.step(steps, FORWARD, INTERLEAVE);
