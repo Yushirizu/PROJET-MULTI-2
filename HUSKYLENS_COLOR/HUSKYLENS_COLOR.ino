@@ -11,11 +11,10 @@
 #include <LiquidCrystal_I2C.h>
 
 #define BUTTON1 24
-#define FORK 26
 
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
-const int stepsPerRevolution = 180;  //The resolution of the mottor is 200 but we had to down it to 140
+const int stepsPerRevolution = 140;  //The resolution of the mottor is 200 but we had to down it to 140
 const int steps = 145;
 AF_Stepper motor(stepsPerRevolution, 2);
 HUSKYLENS huskylens;
@@ -59,7 +58,6 @@ void setup() {
   Serial.begin(9600);
   motor.setSpeed(20);
   pinMode(BUTTON1, INPUT_PULLUP);
-  pinMode(FORK, INPUT);
   mySerial.begin(9600);
   while (!huskylens.begin(mySerial)) {
     Serial.println("1.Please recheck the \"Protocol Type\" in HUSKYLENS (General Settings>>Protocol Type>>I2C)");
@@ -77,10 +75,6 @@ void loop() {
     index_other = 0;
     color = 0;
     print();
-  }
-  //while the stepper is not as his initial position move forward
-  while(digitalRead(FORK)==LOW && count==0){
-    motor.step(10, FORWARD, INTERLEAVE);
   }
   if (Serial.available() > 0) {
     // Read the incoming data
