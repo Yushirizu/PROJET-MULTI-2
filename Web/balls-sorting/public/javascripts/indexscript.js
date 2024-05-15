@@ -1,27 +1,35 @@
 $(() => {
 	// Create the chart
 	const graph = $("#graph");
+	const yellowDataset = {
+		label: "Yellow Balls count",
+		data: [0],
+		backgroundColor: ["rgba(255, 255, 0, 0.2)"],
+		borderColor: ["rgba(255, 255, 0, 0.2)"],
+		borderWidth: 1,
+	};
+
+	const pinkDataset = {
+		label: "Pink Balls count",
+		data: [0],
+		backgroundColor: ["rgba(255, 192, 203, 0.2)"],
+		borderColor: ["rgba(255, 192, 203, 0.2)"],
+		borderWidth: 1,
+	};
+
+	const othersDataset = {
+		label: "Other Balls count",
+		data: [0],
+		backgroundColor: ["rgba(0, 0, 255 , 0.2)"],
+		borderColor: ["rgba(0, 0, 255 , 0.2)"],
+		borderWidth: 1,
+	};
+
 	const barChart = new Chart(graph, {
 		type: "bar",
 		data: {
-			labels: ["Yellow", "Pink", "Others"],
-			datasets: [
-				{
-					label: "Balls count",
-					data: [0, 0, 0],
-					backgroundColor: [
-						"rgba(255, 255, 0, 0.2)",
-						"rgba(255, 192, 203, 0.2)",
-						"rgba(0, 0, 255 , 0.2)",
-					],
-					borderColor: [
-						"rgba(255, 255, 0, 0.2)",
-						"rgba(255, 192, 203, 0.2)",
-						"rgba(0, 0, 255 , 0.2)",
-					],
-					borderWidth: 1,
-				},
-			],
+			labels: ["Total balls count"],
+			datasets: [yellowDataset, pinkDataset, othersDataset],
 		},
 	});
 
@@ -73,9 +81,9 @@ $(() => {
 				}
 
 				// Update the chart data
-				barChart.data.datasets[0].data[0] = response.lastAcquisitionYellow;
-				barChart.data.datasets[0].data[1] = response.lastAcquisitionPink;
-				barChart.data.datasets[0].data[2] = response.lastAcquisitionOther;
+				barChart.data.datasets[0].data = [response.lastAcquisitionYellow];
+				barChart.data.datasets[1].data = [response.lastAcquisitionPink];
+				barChart.data.datasets[2].data = [response.lastAcquisitionOther];
 
 				// Update the chart
 				barChart.update();

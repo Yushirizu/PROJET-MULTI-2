@@ -1,7 +1,8 @@
 /***************************************************
  GROUP 4
 
- sources used: https://github.com/HuskyLens/HUSKYLENSArduino/tree/master
+ sources used: https://github.com/HuskyLens/HUSKYLENSArduino
+               https://github.com/johnrickman/LiquidCrystal_I2C
 *****************************************************/
 
 #include "HUSKYLENS.h"
@@ -9,9 +10,12 @@
 #include <AFMotor.h>
 #include <LiquidCrystal_I2C.h>
 
+#define BUTTON1 24
+#define FORK 26
+
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
-const int stepsPerRevolution = 200;  //The resolution of the mottor is 200 but we had to down it to 140
+const int stepsPerRevolution = 180;  //The resolution of the mottor is 200 but we had to down it to 140
 const int steps = 145;
 AF_Stepper motor(stepsPerRevolution, 2);
 HUSKYLENS huskylens;
@@ -21,6 +25,7 @@ int index_pink = 0;
 int index_yellow = 0;
 int index_other = 0;
 int color = 0;
+int count = 0;
 
 void print() {
   Serial.print(index_yellow);
@@ -50,9 +55,11 @@ void print() {
 void setup() {
   lcd.init();  // initialize the lcd
   lcd.backlight();
+  lcd.noCursor();  //Otherwise have an insert cursor
   Serial.begin(9600);
   motor.setSpeed(20);
-  pinMode(24, INPUT_PULLUP);
+  pinMode(BUTTON1, INPUT_PULLUP);
+  pinMode(FORK, INPUT);
   mySerial.begin(9600);
   while (!huskylens.begin(mySerial)) {
     Serial.println("1.Please recheck the \"Protocol Type\" in HUSKYLENS (General Settings>>Protocol Type>>I2C)");
@@ -63,13 +70,17 @@ void setup() {
 }
 
 void loop() {
-  if (digitalRead(24) == LOW) {
+  if (digitalRead(BUTTON1) == LOW) {
     delay(200);
     index_pink = 0;
     index_yellow = 0;
     index_other = 0;
     color = 0;
     print();
+  }
+  //while the stepper is not as his initial position move forward
+  while(digitalRead(FORK)==LOW && count==0){
+    motor.step(10, FORWARD, INTERLEAVE);
   }
   if (Serial.available() > 0) {
     // Read the incoming data
@@ -95,6 +106,7 @@ void loop() {
     {
       HUSKYLENSResult result = huskylens.read();
       if (result.command == COMMAND_RETURN_BLOCK) {
+        //if the color is yellow
         if (result.ID == 1) {
           color = 1;
           if (index_yellow < 4) {
@@ -104,23 +116,31 @@ void loop() {
             delay(3000);
             motor.step(steps, BACKWARD, INTERLEAVE);
           } else {
-            delay(500);
             index_other++;
+            delay(4000);
+            motor.step(50, BACKWARD, INTERLEAVE);
+            delay(3000);
+            motor.step(50, FORWARD, INTERLEAVE);
           }
+          //if the color is pink
         } else if (result.ID == 2) {
           color = 2;
           if (index_pink < 4) {
             index_pink++;
             delay(10);
-            motor.step(steps, BACKWARD, INTERLEAVE);
+            motor.step(steps + 50, BACKWARD, INTERLEAVE);
             delay(3000);
-            motor.step(steps, FORWARD, INTERLEAVE);
+            motor.step(steps + 50, FORWARD, INTERLEAVE);
           } else {
-            delay(500);
             index_other++;
+            delay(4000);
+            motor.step(50, BACKWARD, INTERLEAVE);
+            delay(3000);
+            motor.step(50, FORWARD, INTERLEAVE);
           }
         }
         print();
+        count++;
       }
     }
   }
